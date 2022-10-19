@@ -86,13 +86,14 @@ class cs19b036CNN(nn.Module):
                     input_shape[1], conv_layer_config[2], conv_layer_config[3], conv_layer_config[4]),
                 conv_layer_config[1]
             ]
+
             in_channels, out_channels, kernel_size, stride, padding = conv_layer_config
             self.conv_layers.append(nn.Conv2d(
                 in_channels, out_channels, kernel_size, stride, padding))
             self.conv_layers.append(nn.ReLU())
             self.conv_layers.append(nn.MaxPool2d(2, 2))
 
-        self.fc1 = nn.Linear(in_features=800, out_features=500)
+        self.fc1 = nn.Linear(in_features=conv_out_shape[0] * conv_out_shape[1] * out_channels, out_features=500)
         self.relu3 = nn.ReLU()
         # initialize our softmax classifier
         self.fc2 = nn.Linear(in_features=500, out_features=classes)
