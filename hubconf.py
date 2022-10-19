@@ -67,7 +67,7 @@ def get_model(train_data_loader=None, n_epochs=10):
 
 class cs19b036CNN(nn.Module):
 
-    def __init__(self, numChannels, classes, config1) -> None:
+    def __init__(self, input_shape, classes, config1) -> None:
 
         super().__init__()
         # config1 = [
@@ -80,6 +80,12 @@ class cs19b036CNN(nn.Module):
         self.conv_layers = []
 
         for conv_layer_config in self.config:
+            conv_out_shape = [_compute_conv_output_shape(
+                input_shape[0], conv_layer_config[2], conv_layer_config[3], conv_layer_config[4]),
+                _compute_conv_output_shape(
+                    input_shape[1], conv_layer_config[2], conv_layer_config[3], conv_layer_config[4]),
+                conv_layer_config[1]
+            ]
             in_channels, out_channels, kernel_size, stride, padding = conv_layer_config
             self.conv_layers.append(nn.Conv2d(
                 in_channels, out_channels, kernel_size, stride, padding))
@@ -108,7 +114,8 @@ class cs19b036CNN(nn.Module):
 
 def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None):
     num_classes = len(train_data_loader.dataset.classes)
-    model = cs19b036CNN(train_data_loader.dataset[0][0].shape[0], num_classes, config)
+    model = cs19b036CNN(
+        train_data_loader.dataset[0][0].shape[0], num_classes, config)
 
     for epoch in range(n_epochs):
         print(f"Epoch {epoch+1}\n-------------------------------")
@@ -136,8 +143,6 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
 
 def test_model(model1=None, test_data_loader=None):
 
-    accuracy_val, precision_val, recall_val, f1score_val = 0, 0, 0, 0
-
     accs = []
     precs = []
     recs = []
@@ -151,10 +156,12 @@ def test_model(model1=None, test_data_loader=None):
         for X, y in test_data_loader:
             pred = model1(X)
             accs.append(metrics.accuracy_score(y, pred.argmax(dim=1)))
-            precs.append(metrics.precision_score(y, pred.argmax(dim=1), average='macro'))
-            recs.append(metrics.recall_score(y, pred.argmax(dim=1), average='macro'))
-            f1s.append(metrics.f1_score(y, pred.argmax(dim=1), average='macro'))
-
+            precs.append(metrics.precision_score(
+                y, pred.argmax(dim=1), average='macro'))
+            recs.append(metrics.recall_score(
+                y, pred.argmax(dim=1), average='macro'))
+            f1s.append(metrics.f1_score(
+                y, pred.argmax(dim=1), average='macro'))
 
     test_loss /= num_batches
     correct /= size
