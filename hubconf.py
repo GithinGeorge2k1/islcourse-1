@@ -101,6 +101,8 @@ class cs19b036CNN(nn.Module):
 
     def forward(self, x):
         # flatten the output from the previous layer and pass it
+        for layer in self.conv_layers:
+            x = layer(x)
         # through our only set of FC => RELU layers
         x = torch.flatten(x, 1)
         x = self.fc1(x)
