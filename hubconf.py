@@ -1,4 +1,6 @@
 import torch
+from torchvision import datasets
+from torchvision import transforms
 from torch import nn
 
 
@@ -54,9 +56,6 @@ def get_model(train_data_loader=None, n_epochs=10):
                 loss, current = loss.item(), batch * len(X)
                 print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-    # Use softmax and cross entropy loss functions
-    # set model variable to proper object, make use of train_data
-
     print('Returning model... (rollnumber: cs19b036)')
 
     return model
@@ -83,8 +82,6 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
 
     # HINT: You can print sizes of tensors to get an idea of the size of the fc layer required
     # HINT: Flatten function can also be used if required
-    return model
-
     print('Returning model... (rollnumber: xx)')
 
     return model
@@ -104,3 +101,31 @@ def test_model(model1=None, test_data_loader=None):
     print('Returning metrics... (rollnumber: xx)')
 
     return accuracy_val, precision_val, recall_val, f1score_val
+
+
+def _load_data():
+
+    # Download training data from open datasets.
+    training_data = datasets.FashionMNIST(
+        root="data",
+        train=True,
+        download=True,
+        transform=nn.ToTensor(),
+    )
+
+    # Download test data from open datasets.
+    test_data = datasets.FashionMNIST(
+        root="data",
+        train=False,
+        download=True,
+        transform=nn.ToTensor(),
+    )
+    
+    return training_data, test_data
+
+if __name__ == '__main__':
+    print('Testing hubconf.py')
+    kali()
+
+    train_data_loader = DataLoader(trainset)
+    model = get_model()
