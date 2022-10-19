@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 from torchvision import datasets
 from torchvision import transforms
 from torch import nn
@@ -36,7 +37,7 @@ class cs19b036NN(nn.Module):
 
 # sample invocation torch.hub.load(myrepo,'get_model',train_data_loader=train_data_loader,n_epochs=5, force_reload=True)
 def get_model(train_data_loader=None, n_epochs=10):
-    num_classes = len(train_data_loader.classes)
+    num_classes = len(train_data_loader.dataset.classes)
     model = cs19b036NN(train_data_loader.dataset[0][0], num_classes)
 
     for epoch in range(n_epochs):
@@ -82,7 +83,7 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
 
     # HINT: You can print sizes of tensors to get an idea of the size of the fc layer required
     # HINT: Flatten function can also be used if required
-    print('Returning model... (rollnumber: xx)')
+    print('Returning model... (rollnumber: cs19b036)')
 
     return model
 
@@ -92,13 +93,22 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
 def test_model(model1=None, test_data_loader=None):
 
     accuracy_val, precision_val, recall_val, f1score_val = 0, 0, 0, 0
-    # write your code here as per instructions
-    # ... your code ...
-    # ... your code ...
-    # ... and so on ...
-    # calculate accuracy, precision, recall and f1score
 
-    print('Returning metrics... (rollnumber: xx)')
+    accs = []
+
+    size = len(test_data_loader.dataset)
+    num_batches = len(test_data_loader)
+    model1.eval()
+    test_loss, correct = 0, 0
+    with torch.no_grad():
+        for X, y in test_data_loader:
+            pred = model1(X)
+            accs.append(np.sum(np.equal(y, pred)) / len(y))
+    test_loss /= num_batches
+    correct /= size
+    print('Returning metrics... (rollnumber: cs19b036)')
+
+    accuracy_val = np.mean(accs)
 
     return accuracy_val, precision_val, recall_val, f1score_val
 
@@ -106,19 +116,19 @@ def test_model(model1=None, test_data_loader=None):
 def _load_data():
 
     # Download training data from open datasets.
-    training_data = datasets.FashionMNIST(
+    training_data = datasets.MNIST(
         root="data",
         train=True,
         download=True,
-        transform=nn.ToTensor(),
+        transform=transforms.ToTensor(),
     )
 
     # Download test data from open datasets.
-    test_data = datasets.FashionMNIST(
+    test_data = datasets.MNIST(
         root="data",
         train=False,
         download=True,
-        transform=nn.ToTensor(),
+        transform=transforms.ToTensor(),
     )
     
     return training_data, test_data
@@ -127,5 +137,8 @@ if __name__ == '__main__':
     print('Testing hubconf.py')
     kali()
 
-    train_data_loader = DataLoader(trainset)
-    model = get_model()
+    trainset, testset = _load_data()
+
+    train_data_loader = torch.utils.data.DataLoader(trainset)
+
+    model = get_model(train_data_loader, n_epochs=1)
