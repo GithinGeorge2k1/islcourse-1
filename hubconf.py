@@ -60,7 +60,7 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
     IMG_WIDTH = X.shape[2]
     IMG_HEIGHT = X.shape[3]
 
-    model = cs19b036CNN(IMG_WIDTH, IMG_HEIGHT, num_classes, config)
+    model = cs19b036CNN(IMG_WIDTH, IMG_HEIGHT, num_classes, config).to(device)
 
     for epoch in range(n_epochs):
         print(f"Epoch {epoch+1}\n-------------------------------")
@@ -69,7 +69,7 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
 
             X, y = X.to(device), y.to(device)
 
-            pred = model(X).to(device)
+            pred = model(X)
             loss = custom_loss(pred, y)
             optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
@@ -134,23 +134,4 @@ def _load_data():
 
 
 if __name__ == '__main__':
-    print('Testing hubconf.py')
-    kali()
-
-    config1 = [
-        (1, 10, (3, 3), 1, 'same'),
-        (10, 3, (5, 5), 1, 'same'),
-        (3, 1, (7, 7), 1, 'same')
-    ]
-
-    trainset, testset = _load_data()
-
-    train_data_loader = torch.utils.data.DataLoader(trainset)
-
-    model = get_model(train_data_loader, n_epochs=1)
-
-    test_data_loader = torch.utils.data.DataLoader(testset)
-
-    vals = test_model(model, test_data_loader)
-
-    print(vals)
+    pass
