@@ -9,6 +9,7 @@ import numpy as np
 from sklearn import metrics
 
 
+
 def kali():
     print('kali')
 
@@ -42,7 +43,16 @@ class cs19b036CNN(nn.Module):
 
         return out
 
+def custom_loss(y_hat, y):
+    batch_size = y.shape[0]
+    softmax = nn.Softmax(dim=1)
+    smax = softmax(y_hat)
+    log_val = torch.log(smax)
+    out = log_val[range(batch_size), y]
+    return -1 * torch.sum(out) / batch_size
+
 def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None):
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     num_classes = len(train_data_loader.dataset.classes)
 
     X, y = next(iter(train_data_loader))
@@ -57,8 +67,10 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
         for batch, (X, y) in enumerate(train_data_loader):
             size = len(train_data_loader.dataset)
 
-            pred = model(X)
-            loss = nn.CrossEntropyLoss()(pred, y)
+            X, y = X.to(device), y.to(device)
+
+            pred = model(X).to(device)
+            loss = custom_loss(pred, y)
             optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 
             optimizer.zero_grad()
@@ -74,8 +86,7 @@ def get_model_advanced(train_data_loader=None, n_epochs=10, lr=1e-4, config=None
     return model
 
 def test_model(model1=None, test_data_loader=None):
-
-    accs = []
+    device = "cuda" if torch.cuda.is_available() else "cpu"
     with torch.no_grad():
         scores = {
             "accuracy": [],
@@ -84,10 +95,10 @@ def test_model(model1=None, test_data_loader=None):
             "f1": []
         }
 
-        for images, labels in testset:
+        for images, labels in test_data_loader:
             images = images.to(device)
             labels = labels.to(device)
-            output = model(images)
+            output = model1(images)
             pred = torch.argmax(output, dim=1)
 
             scores["accuracy"].append(metrics.accuracy_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy()))
