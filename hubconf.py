@@ -77,26 +77,26 @@ def test_model(model1=None, test_data_loader=None):
 
     accs = []
     with torch.no_grad():
-    scores = {
-        "accuracy": [],
-        "precision": [],
-        "recall": [],
-        "f1": []
-    }
+        scores = {
+            "accuracy": [],
+            "precision": [],
+            "recall": [],
+            "f1": []
+        }
 
-    for images, labels in testset:
-        images = images.to(device)
-        labels = labels.to(device)
-        output = model(images)
-        pred = torch.argmax(output, dim=1)
+        for images, labels in testset:
+            images = images.to(device)
+            labels = labels.to(device)
+            output = model(images)
+            pred = torch.argmax(output, dim=1)
 
-        scores["accuracy"].append(metrics.accuracy_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy()))
-        scores["precision"].append(metrics.precision_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy(), average="macro", zero_division=0))
-        scores["recall"].append(metrics.recall_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy(), average="macro", zero_division=0))
-        scores["f1"].append(metrics.f1_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy(), average="macro", zero_division=0))
+            scores["accuracy"].append(metrics.accuracy_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy()))
+            scores["precision"].append(metrics.precision_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy(), average="macro", zero_division=0))
+            scores["recall"].append(metrics.recall_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy(), average="macro", zero_division=0))
+            scores["f1"].append(metrics.f1_score(labels.cpu().detach().numpy(), pred.cpu().detach().numpy(), average="macro", zero_division=0))
 
-    for key, val in scores.items():
-        print(f"Average {key} score: {np.mean(val)}")
+        for key, val in scores.items():
+            print(f"Average {key} score: {np.mean(val)}")
 
     return {metric: np.mean(val) for metric, val in scores.items()}
 
